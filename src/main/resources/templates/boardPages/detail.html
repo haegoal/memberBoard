@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{component/config :: config}"></th:block>
+    <div th:replace="~{component/nav :: nav}"></div>
+</head>
+<body>
+
+<div class="container">
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>작성자</th>
+            <th>제목</th>
+            <th>내용</th>
+            <th>조회수</th>
+        </tr>
+        <td th:text="${board.id}"></td>
+        <td th:text="${board.boardWriter}"></td>
+        <td th:text="${board.boardTitle}"></td>
+        <td th:text="${board.boardContents}"></td>
+        <td th:text="${board.boardHits}"></td>
+        <td><input th:value="${board.id}" name="id" type="hidden"></td>
+        <td><input th:value="${board.boardPass}" name="boardPw" type="hidden"></td>
+        </tr>
+        <tr th:if="${board.fileAttached == 1}">
+            <th>image</th>
+            <td th:each="fileName: ${board.storedFileName}">
+                <img th:src="@{|/upload/${fileName}}" width="200" height="200" alt="">
+            </td>
+        </tr>
+    </table>
+    <div id="btn-area">
+        <button class="btn btn-primary" th:onclick="list_fn()">목록</button>
+        <button class="btn btn-warning" th:onclick="check_fn('update')">수정</button>
+        <button class="btn btn-danger" th:onclick="check_fn('delete')">삭제</button>
+    </div>
+
+    <div id="checkPw" class="mt-5">
+
+    </div>
+    <div class="row">
+        <div class="col">
+            <input type="text" name="commentWriter" placeholder="작성자">
+            <textarea name="commentContents" rows="4" cols="70"
+                      placeholder="타인의 권리를 침해하거나 명예를 훼손하는 댓글은 운영원칙 및 관련 법률에 제재를 받을 수 있습니다."></textarea>
+            <button class="btn btn-primary mb-4" onclick="comment_write()">댓글작성</button>
+        </div>
+    </div>
+
+    <div id="comment-list-area">
+        <table>
+            <tr>
+                <th>id</th>
+                <th>작성자</th>
+                <th>내용</th>
+                <th>작성시간</th>
+            </tr>
+            <tr th:each="comment: ${commentList}">
+                <td th:text="${comment.id}"></td>
+                <td th:text="${comment.commentWriter}"></td>
+                <td th:text="${comment.commentContents}"></td>
+                <td th:text="${comment.createdAt}"></td>
+            </tr>
+
+    </div>
+</div>
+</body>
+<script th:inline="javascript">
+
+    const comment_write = () => {
+        const commentWriter = document.querySelector("[name='commentWriter']").value;
+        const commentContents = document.querySelector("[name='commentContents']").value;
+        const result = document.getElementById("comment-list-area");
+        const boardId = [[${board.id}]];
+        if(commentWriter==""){
+            alert(" 작성자입력바람!")
+        }else if(commentContents==""){
+            alert("내용입력바람")
+        }else {
+            axios({
+                method: "get",
+                params: {
+                    boardId: boardId,
+                    commentWriter: commentWriter,
+                    commentContents: commentContents
+                },
+                url: "/comment/save",
+            }).then(res => {
+                console.log(res.data);
+                let output = "<div id=\"comment-list\">\n"
+                output += "<th>id</th>" +
+                    "                <th>작성자</th>" +
+                    "                <th>내용</th>" +
+                    "                <th>작성시간</th>"
+                for (let i in res.data) {
+                    output += "    <div class=\"row\" >\n";
+                    output += "        <div class=\"col\">" + res.data[i].commentWriter + "</div>\n";
+                    output += "        <div class=\"col\">" + res.data[i].commentContents + "</div>\n";
+                    output += "        <div class=\"col\">" + res.data[i].createdAt + "</div>\n";
+                    output += "    </div>\n";
+                }
+                output += "    </div>\n";
+                result.innerHTML = output;
+                document.querySelector("[name='commentWriter']").value = "";
+                document.querySelector("[name='commentContents']").value = "";
+            }).catch(err => {
+
+            });
+        }
+    }
+
+    const list_fn = () => {
+        const page = [[${page}]]
+        const type = [[${type}]]
+        const q = [[${q}]]
+        location.href = `/board?page=${page}&type=${type}&q=${q}`;
+    }
+
+    const check_fn = (type) => {
+        document.querySelector("#checkPw").innerHTML =
+            `<input type="text" id="board-pass" placeholder="비밀번호">
+        <input type="button" onclick="pass_check('${type}')" value="확인">`;
+    }
+
+    const pass_check = (type) => {
+        const boardPass = document.querySelector("#board-pass").value;
+        const boardPw = [[${board.boardPass}]];
+        const id = [[${board.id}]];
+        if(boardPass==boardPw){
+            if(type=="update"){
+                location.href = `/board/update/${id}`;
+            }else if(type=="delete"){
+                $.ajax({
+                    type:"delete",
+                    url:`/board/${id}`,
+                    success:function(){
+                        location.href="/board";
+                    }
+                })
+            }
+        }else{
+            alert("비밀번호틀림")
+        }
+    }
+</script>
+</html>
