@@ -40,6 +40,9 @@ public class BoardEntity extends BaseEntity{
     @JoinColumn(name="member_id")
     private MemberEntity memberEntity;
 
+    @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<BoardFileEntity> boardFileEntity = new ArrayList<>();
+
 
     public static BoardEntity toSave(BoardDTO boardDTO) {
         BoardEntity boardEntity = new BoardEntity();

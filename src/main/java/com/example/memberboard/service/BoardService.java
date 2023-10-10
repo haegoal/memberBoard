@@ -11,10 +11,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -50,11 +53,13 @@ public class BoardService {
         return boardList;
     }
 
+    @Transactional
     public BoardDTO findById(Long id) {
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(() -> new NoSuchElementException());
         return BoardDTO.toDTO(boardEntity);
     }
 
+    @Transactional
     public void updateHits(Long id) {
         boardRepository.updateHits(id);
     }
@@ -76,7 +81,7 @@ public class BoardService {
                 // 저장용 파일 이름
                 String storedFileName = System.currentTimeMillis() + "_" + originalFilename;
                 // 저장경로+파일이름 준비
-                String savePath = "D:\\springboot_img\\" + storedFileName;
+                String savePath = "C:\\springboot_img\\" + storedFileName;
                 // 파일 폴더에 저장
                 boardFile.transferTo(new File(savePath));
                 // 파일 정보 board_file_table에 저장
@@ -88,4 +93,6 @@ public class BoardService {
             return savedEntity.getId();
         }
     }
+
+
 }

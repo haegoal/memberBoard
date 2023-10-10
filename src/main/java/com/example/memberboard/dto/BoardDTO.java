@@ -1,6 +1,7 @@
 package com.example.memberboard.dto;
 
 import com.example.memberboard.entity.BoardEntity;
+import com.example.memberboard.entity.BoardFileEntity;
 import com.example.memberboard.util.UtilClass;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,16 +36,16 @@ public class BoardDTO {
         boardDTO.setBoardContents(boardEntity.getBoardContents());
         boardDTO.setBoardHits(boardEntity.getBoardHits());
         boardDTO.setCreatedAt(UtilClass.dateTimeFormat(boardEntity.getCreatedAt()));
-//        if (boardEntity.getFileAttached() == 1) {
-//            for (BoardFileEntity boardFileEntity: entity.getBoardFileEntityList()) {
-//                boardDTO.getOriginalFileName().add(boardFileEntity.getOriginalFileName());
-//                boardDTO.getStoredFileName().add(boardFileEntity.getStoredFileName());
-//
-//            }
-//            boardDTO.setFileAttached(1);
-//        }else{
-//            boardDTO.setFileAttached(0);
-//        }
+        if (boardEntity.getFileAttached() == 1) {
+            for (BoardFileEntity boardFileEntity: boardEntity.getBoardFileEntity()) {
+                boardDTO.getOriginalFileName().add(boardFileEntity.getOriginalFileName());
+                boardDTO.getStoredFileName().add(boardFileEntity.getStoredFileName());
+            }
+            boardDTO.setFileAttached(1);
+        }else{
+            boardDTO.setFileAttached(0);
+        }
         return boardDTO;
     }
+
 }

@@ -16,7 +16,6 @@
         </div>
           <div th:if ="${session.user == null}" class="col">
             <input class="mt-3" type="text" name="boardWriter" placeholder="글작성자">
-<!--            <input class="mt-3" type="password" name="boardPass" placeholder="비밀번호"><br>-->
           </div>
     </div>
     <input class="mt-3 mb-1" type="text" name="boardTitle" placeholder="제목을 입력해 주세요."><br>
@@ -61,7 +60,6 @@
   $(frm).on("submit", function(e){
     e.preventDefault();
     const boardWriter = $(frm.boardWriter).val();
-    // const boardPass = $(frm.boardPass).val();
     const boardTitle = $(frm.boardTitle).val();
     const boardFile = document.getElementById('file');
     if(boardWriter==""){

@@ -45,7 +45,7 @@ public class MemberEntity extends BaseEntity{
     private List<MemberFileEntity> memberFileEntityList = new ArrayList<>();
 
     @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<BoardEntity> boardEntity = new ArrayList<>();
+    private List<BoardEntity> boardEntityList = new ArrayList<>();
 
     public static MemberEntity toSave(MemberDTO memberDTO) {
         MemberEntity memberEntity = new MemberEntity();
@@ -67,6 +67,18 @@ public class MemberEntity extends BaseEntity{
         memberEntity.setMemberMobile(memberDTO.getMemberMobile());
         memberEntity.setMemberBirth(memberDTO.getMemberBirth());
         memberEntity.setFileAttached(1);
+        return memberEntity;
+    }
+
+    public static MemberEntity toUpdateEntity(MemberDTO memberDTO) {
+        MemberEntity memberEntity = new MemberEntity();
+        memberEntity.setId(memberDTO.getId());
+        memberEntity.setMemberEmail(memberDTO.getMemberEmail());
+        memberEntity.setMemberPassword(memberDTO.getMemberPassword());
+        memberEntity.setMemberName(memberDTO.getMemberName());
+        memberEntity.setMemberMobile(memberDTO.getMemberMobile());
+        memberEntity.setMemberBirth(memberDTO.getMemberBirth());
+        memberEntity.setFileAttached(0);
         return memberEntity;
     }
 }

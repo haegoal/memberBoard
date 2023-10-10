@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -32,6 +33,14 @@ public class MemberController {
         System.out.println("memberDTO = " + memberDTO);
         memberService.save(memberDTO);
         return "redirect:/";
+    }
+
+    @GetMapping("/myPage")
+    public String findById(HttpSession session, Model model){
+        String memberEmail = (String) session.getAttribute("user");
+        MemberDTO memberDTO = memberService.findByMemberEmail(memberEmail);
+        model.addAttribute("member", memberDTO);
+        return "memberPages/update";
     }
 
 
@@ -78,6 +87,12 @@ public class MemberController {
         cookie.setMaxAge(0);
         response.addCookie(cookie);
         return "redirect:/";
+    }
+    @PostMapping("/update")
+    public String update(@ModelAttribute MemberDTO memberDTO)throws IOException{
+        System.out.println("memberDTO = " + memberDTO);
+        memberService.update(memberDTO);
+        return "redirect:/myPage";
     }
 
 }
