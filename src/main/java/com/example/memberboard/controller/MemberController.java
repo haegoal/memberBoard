@@ -92,7 +92,18 @@ public class MemberController {
     public String update(@ModelAttribute MemberDTO memberDTO)throws IOException{
         System.out.println("memberDTO = " + memberDTO);
         memberService.update(memberDTO);
-        return "redirect:/myPage";
+        return "redirect:/";
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity delete(@PathVariable("id") Long id, HttpSession session, HttpServletResponse response){
+        memberService.delete(id);
+        session.removeAttribute("user");
+        session.removeAttribute("userId");
+        Cookie cookie=new Cookie("memberEmail", "");
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return new ResponseEntity<>( HttpStatus.OK);
+    }
 }

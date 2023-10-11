@@ -23,7 +23,6 @@
     <div class="col" id="board-list-area" th:if ="${board.fileAttached == 1}">
             <div th:each="fileName: ${board.storedFileName}">
                 <img th:src="@{|/upload/${fileName}}" width="200" height="200" alt="">
-                     alt="" width="500" height="500">
             </div>
     </div>
 </div>
@@ -38,60 +37,47 @@
         <div th:if="${session.user=='admin'}">
             <button onclick="board_delete()" class="btn btn-primary m-1">삭제</button>
         </div>
-        <button onclick="board_list()" class=" btn btn-primary m-1">목록</button>
+        <button onclick="list_fn()" class=" btn btn-primary m-1">목록</button>
 </div>
 </div>
 <hr style="border: solid 2px">
 
 
+<div class="table input-group mt-5">
+    <div style="width:300px;height:175px;" th:if="${session.user!=null}">
+                <input type="text" name="commentWriter" th:value="${session.user}" placeholder="작성자 입력">
+    </div>
+    <div style="width:300px;height:175px;" th:unless="${session.user!=null}">
+                <input type="text" name="commentWriter" placeholder="작성자 입력">
+    </div>
+    <div>
+            <textarea id="comment-contents" rows="4" cols="80"
+                      placeholder="타인의 권리를 침해하거나 명예를 훼손하는 댓글은 운영원칙 및 관련 법률에 제재를 받을 수 있습니다."></textarea>
+        <button class="btn btn-primary mb-4" onclick="comment_write()">댓글작성</button>
+    </div>
+</div>
+<hr style="border: solid 2px">
 
-<!--<div class="table input-group mt-5">-->
-<!--    <div style="width:300px;height:175px;">-->
-<!--        <c:choose>-->
-<!--            <c:when test="${user!=null}">-->
-<!--                <input type="text" id="comment-writer" value="${user}">-->
-<!--                <input type="hidden" id="comment-password" value=null>-->
-<!--            </c:when>-->
-<!--            <c:otherwise>-->
-<!--                <input type="text" id="comment-writer" placeholder="작성자 입력">-->
-<!--                <input type="password" id="comment-password" placeholder="비번입력 입력">-->
-<!--            </c:otherwise>-->
-<!--        </c:choose>-->
-
-<!--    </div>-->
-<!--    <div>-->
-<!--            <textarea id="comment-contents" rows="4" cols="80"-->
-<!--                      placeholder="타인의 권리를 침해하거나 명예를 훼손하는 댓글은 운영원칙 및 관련 법률에 제재를 받을 수 있습니다."></textarea>-->
-<!--        <button class="btn btn-primary mb-4" onclick="comment_write()">댓글작성</button>-->
-<!--    </div>-->
-<!--    <div>-->
-<!--    </div>-->
-<!--</div>-->
-<!--<hr style="border: solid 2px">-->
-
-<!--<div id="comment-list-area" class="mt-5">-->
-<!--    <c:choose>-->
-<!--        <c:when test="${commentList == null}">-->
-<!--            <h3 class="text-center">작성된 댓글이 없습니다.</h3>-->
-<!--        </c:when>-->
-<!--        <c:otherwise>-->
-<!--            <div id="comment-list">-->
-<!--                <c:forEach items="${commentList}" var="comment">-->
-<!--                    <c:set var="asd" value="false"/>-->
-<!--                    <div class="row">-->
-<!--                        <div class="col">${comment.commentWriter}</div>-->
-<!--                        <div class="col">${comment.commentContents}</div>-->
-<!--                        <div class="col">${comment.commentCreatedDate}</div>-->
-<!--                        <c:if test="${user == comment.commentWriter or comment.memberId ==null or user=='admin@admin.com'}">-->
-<!--                            <div class="col text-end">-->
-<!--                                <div class="col text-end"><i class="bi bi-x-square-fill" style='cursor: pointer;'-->
-<!--                                                             onclick="delete_fn(event, '${comment.id}', '${comment.memberId}')"></i>-->
-<!--                                    <c:if test="${comment.memberId ==null}">-->
-<!--                                        <input type="password" name="commentPass">-->
-<!--                                    </c:if>-->
-<!--                                </div>-->
-<!--                        </c:if>-->
-<!--                    </div>-->
+<div id="comment-list-area" class="mt-5">
+        <div th:if="${commentList == null}">
+            <h3 class="text-center">작성된 댓글이 없습니다.</h3>
+        </div>
+            <div id="comment-list" th:unless="${commentList == null}" th:each="comment: ${commentList}">
+                    <div class="row">
+                        <div class="col" th:text="${comment.commentWriter}"></div>
+                        <div class="col" th:text="${comment.commentContents}"></div>
+                        <div class="col" th:text="${comment.createdAt}"></div>
+                        <div th:if ="${session.user == comment.commentWriter or session.user=='admin'}">
+                            <div class="col text-end">
+                                <div class="col text-end">
+                                    <i class="bi bi-x-square-fill" style='cursor: pointer;' th:onclick="delete_fn([[${comment.id}]])"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <hr style="border: solid 2px">
+                    </div>
+            </div>
+</div>
 <!--                    <div class="row">-->
 <!--                        <div class="col">-->
 <!--                            <c:set var="loop" value="false"/>-->
@@ -125,66 +111,97 @@
 <!--                            <p id="cnt-${comment.id}">${comment.cnt}</p>-->
 <!--                        </div>-->
 <!--                    </div>-->
-<!--                    <hr class="mt-5" style="border: solid 2px">-->
+                    <hr class="mt-5" style="border: solid 2px">
 <!--            </div>-->
-<!--            </c:forEach>-->
-<!--        </c:otherwise>-->
-<!--    </c:choose>-->
-<!--</div>-->
-<!--</div>-->
 </div>
+</div>
+</div>
+<script th:inline="javascript">
+
+    const user = [[${session.user}]]
+
+
+
+    const board_update = () => {
+            if (confirm("수정하시겠습니까?")) {
+                const id = [[${board.id}]];
+                location.href = `/board/update/${id}`;
+            }
+    }
+
+    const comment_write = () => {
+        const writer = document.querySelector("[name='commentWriter']").value;
+        const contents = document.querySelector("#comment-contents").value;
+        const boardId = [[${board.id}]];
+        axios({
+            method: "post",
+            url: "/comment/save",
+            data: {
+                commentWriter: writer,
+                commentContents: contents,
+                boardId: boardId
+            }
+        }).then(res => {
+            const area = document.querySelector("#comment-list-area");
+            let result = "<div id=\"comment-list\">\n"
+            for (let i in res.data) {
+                result += "                    <div class=\"row\">\n";
+                result += "        <div class=\"col\">" + res.data[i].commentWriter + "</div>\n";
+                result += "        <div class=\"col\">" + res.data[i].commentContents + "</div>\n";
+                result += "        <div class=\"col\">" + res.data[i].createdAt + "</div>\n";
+                if (user == res.data[i].commentWriter || user == "admin") {
+                    result += "                            <div class=\"col text-end\">\n";
+                    result += "                                <div class=\"col text-end\"><i class=\"bi bi-x-square-fill\" style='cursor: pointer;'\n";
+                    result += "                                                             onclick=\"delete_fn('" + res.data[i].id + "')\"></i>\n";
+                    result += "                                </div>\n";
+                    result += "                            </div>\n";
+                }
+                result += "                        </div>\n";
+                result += " <hr style=\"border: solid 2px\">";
+            }
+            result += "                        </div>\n";
+            area.innerHTML = result;
+            document.querySelector("#comment-contents").value = "";
+        }).catch(err => {
+            console.log("err", err);
+        });
+    }
+
+    const board_delete = () => {
+        if (confirm("삭제하시겠습니까?")) {
+            const id = [[${board.id}]];
+            $.ajax({
+                type: "delete",
+                url:`/board/${id}`,
+                success:function(){
+                    location.href="/";
+                }
+            })
+        }
+    }
+
+    const delete_fn = (id) => {
+        if(confirm("삭제하시겠습니까?")){
+            axios({
+                method: "delete",
+                url: `/comment/${id}`,
+            }).then(res => {
+                const id= [[${board.id}]]
+                location.href = `/board/${id}`
+            })
+        }
+    }
+
+   const list_fn = () => {
+       const page = [[${page}]]
+       const type = [[${type}]]
+       const q = [[${q}]]
+       const by = [[${by}]]
+       const pageLimit = [[${pageLimit}]]
+       location.href = `/board?page=${page}&type=${type}&q=${q}&by=${by}&pageLimit=${pageLimit}`;
+   }
+
+
+</script>
 </body>
-<!--<script th:inline="javascript">-->
-
-<!--    const comment_write = () => {-->
-<!--        const commentWriter = document.querySelector("[name='commentWriter']").value;-->
-<!--        const commentContents = document.querySelector("[name='commentContents']").value;-->
-<!--        const result = document.getElementById("comment-list-area");-->
-<!--        const boardId = [[${board.id}]];-->
-<!--        if(commentWriter==""){-->
-<!--            alert(" 작성자입력바람!")-->
-<!--        }else if(commentContents==""){-->
-<!--            alert("내용입력바람")-->
-<!--        }else {-->
-<!--            axios({-->
-<!--                method: "get",-->
-<!--                params: {-->
-<!--                    boardId: boardId,-->
-<!--                    commentWriter: commentWriter,-->
-<!--                    commentContents: commentContents-->
-<!--                },-->
-<!--                url: "/comment/save",-->
-<!--            }).then(res => {-->
-<!--                console.log(res.data);-->
-<!--                let output = "<div id=\"comment-list\">\n"-->
-<!--                output += "<th>id</th>" +-->
-<!--                    "                <th>작성자</th>" +-->
-<!--                    "                <th>내용</th>" +-->
-<!--                    "                <th>작성시간</th>"-->
-<!--                for (let i in res.data) {-->
-<!--                    output += "    <div class=\"row\" >\n";-->
-<!--                    output += "        <div class=\"col\">" + res.data[i].commentWriter + "</div>\n";-->
-<!--                    output += "        <div class=\"col\">" + res.data[i].commentContents + "</div>\n";-->
-<!--                    output += "        <div class=\"col\">" + res.data[i].createdAt + "</div>\n";-->
-<!--                    output += "    </div>\n";-->
-<!--                }-->
-<!--                output += "    </div>\n";-->
-<!--                result.innerHTML = output;-->
-<!--                document.querySelector("[name='commentWriter']").value = "";-->
-<!--                document.querySelector("[name='commentContents']").value = "";-->
-<!--            }).catch(err => {-->
-
-<!--            });-->
-<!--        }-->
-<!--    }-->
-
-<!--    const list_fn = () => {-->
-<!--        const page = [[${page}]]-->
-<!--        const type = [[${type}]]-->
-<!--        const q = [[${q}]]-->
-<!--        location.href = `/board?page=${page}&type=${type}&q=${q}`;-->
-<!--    }-->
-
-
-
 </html>

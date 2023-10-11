@@ -43,7 +43,7 @@ public class MemberService {
                 String storedFileName = System.currentTimeMillis() + "_" + originalFilename;
                 String savePath = "C:\\springboot_img\\" + storedFileName;
                 memberProfile.transferTo(new File(savePath));
-                MemberFileEntity memberFileEntity = MemberFileEntity.toSaveBoardFile(savedEntity, originalFilename, storedFileName);
+                MemberFileEntity memberFileEntity = MemberFileEntity.toSaveMemberFile(savedEntity, originalFilename, storedFileName);
                 memberFileRepository.save(memberFileEntity);
             }
         return savedEntity.getId();
@@ -62,16 +62,20 @@ public class MemberService {
             MemberEntity memberEntity = MemberEntity.toUpdateEntity(memberDTO);
             memberRepository.save(memberEntity);
         }else{
-            MemberEntity memberEntity = MemberEntity.toSaveEntityWtihFile(memberDTO);
+            MemberEntity memberEntity = MemberEntity.toUpdateEntityWtihFile(memberDTO);
             MemberEntity savedEntity = memberRepository.save(memberEntity);
             for (MultipartFile memberProfile:memberDTO.getMemberProfile()) {
                 String originalFilename = memberProfile.getOriginalFilename();
                 String storedFileName = System.currentTimeMillis() + "_" + originalFilename;
                 String savePath = "C:\\springboot_img\\" + storedFileName;
                 memberProfile.transferTo(new File(savePath));
-                MemberFileEntity memberFileEntity = MemberFileEntity.toSaveBoardFile(savedEntity, originalFilename, storedFileName);
+                MemberFileEntity memberFileEntity = MemberFileEntity.toSaveMemberFile(savedEntity, originalFilename, storedFileName);
                 memberFileRepository.save(memberFileEntity);
             }
         }
+    }
+
+    public void delete(Long id) {
+        memberRepository.deleteById(id);
     }
 }

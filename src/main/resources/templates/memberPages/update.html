@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{component/config :: config}"></th:block>
+</head>
+<body>
+<div th:replace="~{component/header :: header}"></div>
+<div th:replace="~{component/nav :: nav}"></div>
+
+<div class="container mt-5 mb-5">
+  <form class="card me-4" action="/member/update" method="post" enctype="multipart/form-data" name="frm">
+    <div class="row m-3">
+      <div class="col">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="input-group">
+              <input class="form-control" type="hidden" th:value="${member.id}" id="id" autocomplete='off' maxlength='25'>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text">이메일</span>
+              <input class="form-control" type="text" th:value="${member.memberEmail}" name="memberEmail" id="member-email" autocomplete='off' maxlength='25' readonly>
+            </div>
+          </div>
+        </div>
+        <p id="id-check"></p>
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text">비밀번호</span>
+              <input class="form-control" type="password" name="memberPassword" id="member-password" autocomplete='off' maxlength='25'>
+            </div>
+          </div>
+        </div>
+        <p id="p-check"></p>
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text">이름</span>
+              <input class="form-control" type="text" th:value="${member.memberName}" name="memberName" id="member-name" autocomplete='off' maxlength='12' oninput='isKor(this)'/>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text">생일</span>
+              <input class="form-control" type="date" th:value="${member.memberBirth}" name="memberBirth" id="member-birth" autocomplete='off'>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text">전화번호</span>
+              <input class="form-control" type="text" th:value="${member.memberMobile}" name="memberMobile" id="member-mobile" autocomplete='off' maxlength="11"  oninput='isNumber(this);'>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col">
+            <label for="member-profile" class="form-label">프로필사진</label>
+            <input class="form-control" type="file" name="memberProfile" id="member-profile" autocomplete='off' multiple accept="image/*">
+          </div>
+        </div>
+      </div>
+      <div class="col">
+      <div th:if="${member.fileAttached==1}" th:each="fileName, st: ${member.storedFileName}">
+        <span th:if="${st.last}">
+        <img th:src="@{|/upload/${fileName}}" width="200" height="200" alt="" id="image">
+          </span>
+      </div>
+      <div th:unless="${member.fileAttached==1}" class="col">
+        <img src = "http://via.placeholder.com/120x150" width="40%" id="image">
+      </div>
+    </div>
+    </div>
+    <div class="row m-3">
+      <div class="col-md-6 text-end">
+        <input class="btn btn-warning" onclick="req_fn('update')" value="수정">
+        <input class="btn btn-danger" onclick="req_fn('delete')" value="회원탈퇴">
+      </div>
+    </div>
+  </form>
+</div>
+</div>
+
+<div th:replace="~{component/footer :: footer}"></div>
+<script th:inline="javascript">
+  let idk = 1;
+
+  $(frm.memberProfile).on("change", function(e){
+    idk=1;
+    e.target.files.length=0;
+    if(e.target.files.length>1){
+      alert("2개 이상은 못올림!")
+      idk = 0;
+    }else{
+      $("#image").attr("src", URL.createObjectURL(e.target.files[0]));
+    }
+  })
+
+    const req_fn = (type) => {
+      const memberPassword = document.querySelector("[name='memberPassword']").value;
+      const memberName = document.querySelector('#member-name').value;
+      const memberBirth = document.querySelector('#member-birth').value;
+      const memberMobile = document.querySelector('#member-mobile').value;
+      const id = document.querySelector('#id').value;
+      const pass = [[${member.memberPassword}]];
+      if(memberName==""){
+        alert("이름입력바람")
+        $(frm.memberName).focus();
+      }else if(memberBirth==""){
+        alert("생일입력바람")
+        $(frm.memberBirth).focus();
+      }else if(memberMobile==""){
+        alert("번호입력바람")
+        $(frm.memberMobile).focus();
+      }else if(idk==0){
+        alert("2개 이상은 못올림!")
+      }else{
+        if(memberPassword==pass){
+          if (type == "update") {
+            frm.submit();
+          } else if (type == "delete") {
+            if(confirm("삭제하시겠습니까?")){
+              axios({
+                method: "delete",
+                url: `/member/${id}`
+              }).then(res => {
+                location.href = "/";
+              }).catch(err => {
+                alert("삭제 실패!");
+              });
+            }
+          }
+        }else{
+          alert("불일치");
+        }
+        }
+    }
+
+
+
+</script>
+
+</body>
+</html>

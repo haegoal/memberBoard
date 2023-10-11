@@ -10,10 +10,13 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     Page<BoardEntity> findByBoardWriterContaining(String q, Pageable pageable);
 
     Page<BoardEntity> findByBoardTitleContaining(String q, Pageable pageable);
+
 
     @Modifying // insert, update, delete 할 때
     @Query(value = "update BoardEntity b set b.boardHits = b.boardHits+1 where b.id =:id")

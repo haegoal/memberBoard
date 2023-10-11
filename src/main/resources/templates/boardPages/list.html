@@ -8,7 +8,23 @@
 <div th:replace="~{component/nav :: nav}"></div>
 
 <div class="container mt-5 mb-5">
-  <table class="table table-hover">
+
+  <div class="input-group" id="by">
+    <div class="col-2 mt-3" th:if="${by=='boardHits'}">
+      <select name="by" class="form-select">
+        <option value="boardHits" selected>조회수</option>
+        <option value="createdAt">최신순</option>
+      </select>
+    </div>
+    <div class="col-2 mt-3" th:unless="${by=='boardHits'}">
+      <select name="by" class="form-select">
+        <option value="boardHits">조회수</option>
+        <option value="createdAt" selected>최신순</option>
+      </select>
+    </div>
+  </div>
+
+  <table class="table table-hover mt-5">
     <thead>
     <tr>
       <th scope="col">id</th>
@@ -22,12 +38,52 @@
     <tr th:each="board: ${boardList}">
       <td th:text="${board.id}"></td>
       <td th:text="${board.boardWriter}"></td>
-      <td><a th:href="@{|/board/${board.id}|(page=${page}, type=${type}, q=${q})}" th:text="${board.boardTitle}">제목</a></td>
+      <td><a th:href="@{|/board/${board.id}|(page=${page}, type=${type}, q=${q}, by =${by}, pageLimit = ${pageLimit} )}" th:text="${board.boardTitle}">제목</a></td>
       <td th:text="${board.createdAt}"></td>
       <td th:text="${board.boardHits}"></td>
     </tr>
     </tbody>
   </table>
+    <div class="input-group">
+      <div class="col-2 mt-3" th:if="${type == 'boardWriter'}">
+        <select name="type" class="form-select">
+          <option value="boardTitle">제목</option>
+          <option value="boardWriter" selected>작성자</option>
+        </select>
+        </div>
+      <div class="col-2 mt-3" th:unless="${type == 'boardWriter'}">
+        <select name="type" class="form-select">
+          <option value="boardTitle" selected>제목</option>
+          <option value="boardWriter">작성자</option>
+        </select>
+      </div>
+        <div class="col-2 mt-3">
+      <input type="text" class="form-control" name="q" placeholder="검색어를 입력하세요">
+    </div>
+      <div class="col-2 mt-3">
+        <input type="button" value="검색" class="btn btn-primary" onclick="search_fn()">
+      </div>
+    </div>
+
+  <div class="col-1">
+    <select name="pageLimit" id="pageLimit" class="form-select">
+      <span th:if="${pageLimit==3}">
+        <option value="3" selected>3개씩보기</option>
+        <option value="5" >5개씩보기</option>
+        <option value="10" >10개씩보기</option>
+      </span>
+        <span th:if="${pageLimit==5}">
+        <option value="3" >3개씩보기</option>
+        <option value="5" selected>5개씩보기</option>
+        <option value="10" >10개씩보기</option>
+        </span>
+      <span th:if="${pageLimit==10}">
+        <option value="3" >3개씩보기</option>
+        <option value="5" >5개씩보기</option>
+        <option value="10" selected>10개씩보기</option>
+      </span>
+    </select>
+  </div>
 
   <div class="text-end">
     <button class="btn btn-primary" onclick="save_fn()">글쓰기</button>
@@ -37,7 +93,7 @@
     <ul class="pagination justify-content-center">
       <li class="page-item">
         <!--첫페이지 요청 링크 /board?page=1 -->
-        <a class="page-link" th:href="@{/board(page=1, type=${type}, q=${q})}">
+        <a class="page-link" th:href="@{/board(page=1, type=${type}, q=${q}, by =${by}, pageLimit = ${pageLimit})}">
           <!--            타임리프 쿼리스트링 방식은 소가로-->
           <span>First</span>
         </a>
@@ -47,7 +103,7 @@
         <!--boardList.first: isFirst()
             boardList.number: getNumber()-->
         <!--            현재페이가 첫페이지가 아니면 /board?page=number로 -->
-        <a class="page-link" th:href="${boardList.first} ? '#' : @{/board(page=${boardList.number}, type=${type}, q=${q})}">
+        <a class="page-link" th:href="${boardList.first} ? '#' : @{/board(page=${boardList.number}, type=${type}, q=${q}, by =${by}, pageLimit = ${pageLimit})}">
           <!-- 사용자 3페이지, number 2 /board?page=2 -->
           <span><</span> <!-- < -->
         </a>
@@ -57,7 +113,7 @@
           for(int page=startPage; page<=endPage; page++) -->
       <li th:each="page: ${#numbers.sequence(startPage, endPage)}"
           th:class="${page == boardList.number + 1} ? 'page-item active'" class="page-item">
-        <a class="page-link" th:text="${page}" th:href="@{/board(page=${page}, type=${type}, q=${q})}"></a>
+        <a class="page-link" th:text="${page}" th:href="@{/board(page=${page}, type=${type}, q=${q}, by =${by}, pageLimit = ${pageLimit})}"></a>
       </li>
 
       <!-- 다음 페이지 요청
@@ -65,14 +121,14 @@
           getNumber() 값은 2임.
           따라서 4페이지를 보고 싶다면 getNumber()+2를 해야 컨트롤러에 4를 요청할 수 있음. -->
       <li th:class="${boardList.last} ? 'disabled'">
-        <a class="page-link" th:href="${boardList.last} ? '#' : @{/board(page=${boardList.number + 2}, type=${type}, q=${q})}">
+        <a class="page-link" th:href="${boardList.last} ? '#' : @{/board(page=${boardList.number + 2}, type=${type}, q=${q}, by =${by}, pageLimit = ${pageLimit})}">
           <!-- 사용자 3페이지, number 2 /board?page=4 -->
           <span>&gt;</span>
         </a>
       </li>
 
       <li class="page-item">
-        <a class="page-link" th:href="@{/board(page=${boardList.totalPages}, type=${type}, q=${q})}">
+        <a class="page-link" th:href="@{/board(page=${boardList.totalPages}, type=${type}, q=${q}, by =${by}, pageLimit = ${pageLimit})}">
           <!--              getTotalpage를 화면에서 쓸땐 그냥 .totalpages-->
           <span>Last</span>
         </a>
@@ -84,9 +140,36 @@
 <!--<div th:replace="~{component/footer :: footer}"></div>-->
 
 <script th:inline="javascript">
+
+
+
   const save_fn = () => {
     location.href = "/board/save";
   }
+
+  $("#by").on("change", function(){
+    const q = document.querySelector("[name='q']").value;
+    const type = document.querySelector("[name='type']").value;
+    const pageLimit = document.getElementById("pageLimit").value;
+    const by = document.querySelector("[name='by']").value;
+    location.href="/board?type=" + type + "&q=" + q + "&by=" + by + "&pageLimit=" + pageLimit;
+  })
+
+  const search_fn = () => {
+    const q = document.querySelector("[name='q']").value;
+    const type = document.querySelector("[name='type']").value;
+    const by = document.querySelector("[name='by']").value;
+    const pageLimit = document.getElementById("pageLimit").value;
+    location.href="/board?type=" + type + "&q=" + q + "&by=" + by + "&pageLimit=" + pageLimit;
+  }
+
+  $("#pageLimit").on("change", function(){
+    const q = document.querySelector("[name='q']").value;
+    const type = document.querySelector("[name='type']").value;
+    const by = document.querySelector("[name='by']").value;
+    const pageLimit = document.getElementById("pageLimit").value;
+    location.href="/board?type=" + type + "&q=" + q + "&by=" + by + "&pageLimit=" + pageLimit;
+  })
 </script>
 </body>
 </html>

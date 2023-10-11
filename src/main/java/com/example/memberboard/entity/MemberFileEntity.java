@@ -24,7 +24,7 @@ public class MemberFileEntity {
     @JoinColumn(name="member_id")
     private MemberEntity memberEntity;
 
-    public static MemberFileEntity toSaveBoardFile(MemberEntity savedEntity, String orginalFileName, String storedFileName) {
+    public static MemberFileEntity toSaveMemberFile(MemberEntity savedEntity, String orginalFileName, String storedFileName) {
         MemberFileEntity memberFileEntity = new MemberFileEntity();
         memberFileEntity.setOriginalFileName(orginalFileName);
         memberFileEntity.setStoredFileName(storedFileName);
