@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{component/config :: config}"></th:block>
+</head>
+<body>
+<div th:replace="~{component/header :: header}"></div>
+<div th:replace="~{component/nav :: nav}"></div>
+<table>
+  <tr>
+    <th>ID</th>
+    <th>이메일</th>
+    <th>이름</th>
+    <th>생년월일</th>
+    <th>핸드폰번호</th>
+  </tr>
+  <tr th:each="member: ${memberList}">
+    <td th:text="${member.id}"></td>
+    <td th:text="${member.memberEmail}"></td>
+    <td th:text="${member.memberName}"></td>
+    <td th:text="${member.memberBirth}"></td>
+    <td th:text="${member.memberMobile}"></td>
+    <td>
+      <button th:onclick="delete_fn([[${member.id}]])" class="btn btn-danger">삭제</button>
+    </td>
+  </tr>
+</table>
+<div id="detail">
+
+</div>
+<div th:replace="~{component/footer :: footer}"></div>
+</body>
+<script th:inline="javascript">
+
+  const delete_fn = (id) => {
+    if(confirm("삭제하시겠습니까?")){
+      axios({
+        method: "delete",
+        url: `/member/delete/${id}`
+      }).then(res => {
+        location.href = "/member/admin";
+      }).catch(err => {
+        alert("삭제 실패!");
+      });
+    }
+  }
+</script>
+</html>

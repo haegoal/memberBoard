@@ -186,8 +186,13 @@
                 method: "delete",
                 url: `/comment/${id}`,
             }).then(res => {
+                const page = [[${page}]]
+                const type = [[${type}]]
+                const q = [[${q}]]
+                const by = [[${by}]]
+                const pageLimit = [[${pageLimit}]]
                 const id= [[${board.id}]]
-                location.href = `/board/${id}`
+                location.href = `/board/${id}?page=${page}&type=${type}&q=${q}&by=${by}&pageLimit=${pageLimit}`
             })
         }
     }

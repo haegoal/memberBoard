@@ -13,9 +13,10 @@
       <a href="/">Home</a>
       <h4>멤버<span>게시판</span></h4>
       <h5 class="mt-2">로그인해주세요.</h5>
-      <input type="text" name="email" placeholder="이메일" autocomplete="off" value="a" maxlength='25' oninput='isEng(this)'/>
+      <input type="hidden" name="redirectURI" th:value="${redirectURI}">
+      <input type="text" name="email" placeholder="이메일" autocomplete="off" value="admin" maxlength='25' oninput='isEng(this)'/>
       <i class="typcn typcn-eye" id="eye"></i>
-      <input type="password" name="pw" placeholder="비밀번호" id="pw"  value="a!23" autocomplete="off" maxlength='25'>
+      <input type="password" name="pw" placeholder="비밀번호" id="pw"  value="qkr!23" autocomplete="off" maxlength='25'>
       <small class="rmb">계정정보저장</small>
       <input type="checkbox" name="keep">
       <a href="#" class="forgetpass">Forget Password?</a>
@@ -25,6 +26,9 @@
 </div>
 </body>
 <script th:inline="javascript">
+
+
+
   function isEng(item) {
     item.value = item.value.replace(/[^A-Za-z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/\-=| ]/ig, '');
   }
@@ -34,6 +38,7 @@
     const memberEmail= $(frm.email).val();
     const memberPassword= $(frm.pw).val();
     const keep=$(frm.keep).is(":checked");
+    const redirectURI = $(frm.redirectURI).val();
     if(memberEmail ==""){
       alert("이메일입력바람");
       $(frm.memberEmail).focus();
@@ -43,12 +48,12 @@
     }else{
       $.ajax({
         type:"post",
-        data:{memberEmail, memberPassword, keep},
+        data:{memberEmail, memberPassword, keep, redirectURI},
         url:"/member/login",
         success:function(data){
           console.log(data)
           alert(memberEmail + "님 환영합니다.");
-          location.href="/";
+          location.href= data;
         }, error:function (){
           alert("이메일 또는 비밀번호가 일치하지않습니다.");
         }

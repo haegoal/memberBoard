@@ -11,4 +11,10 @@ public class HomeController {
     public String index(){
         return "index";
     }
+
+
+    @GetMapping("/error/404")
+    public String error(){
+        return "error";
+    }
 }

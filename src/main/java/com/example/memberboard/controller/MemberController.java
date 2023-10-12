@@ -16,6 +16,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.lang.reflect.Member;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Controller
 @RequiredArgsConstructor
@@ -35,12 +36,24 @@ public class MemberController {
         return "redirect:/";
     }
 
+
     @GetMapping("/myPage")
     public String findById(HttpSession session, Model model){
         String memberEmail = (String) session.getAttribute("user");
         MemberDTO memberDTO = memberService.findByMemberEmail(memberEmail);
         model.addAttribute("member", memberDTO);
         return "memberPages/update";
+    }
+
+    @GetMapping("/admin")
+    public String findByAll(Model model, HttpSession session){
+        if("admin".equals(session.getAttribute("user"))){
+        List<MemberDTO> memberDTOList  = memberService.findByAll();
+        model.addAttribute("memberList", memberDTOList);
+        return "memberPages/admin";
+        }else{
+            return "error";
+        }
     }
 
 
@@ -56,12 +69,14 @@ public class MemberController {
     }
 
     @GetMapping("/login")
-    public String login(){
+    public String login(@RequestParam(value = "redirectURI", defaultValue = "/") String redirectURI, Model model){
+        System.out.println("redirectURI = " + redirectURI);
+        model.addAttribute("redirectURI", redirectURI);
         return "memberPages/login";
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(@ModelAttribute MemberDTO memberDTO, @RequestParam("keep") boolean keep, HttpSession session, HttpServletResponse response){
+    public ResponseEntity login(@ModelAttribute MemberDTO memberDTO, @RequestParam("keep") boolean keep, HttpSession session, HttpServletResponse response, @RequestParam("redirectURI") String redirectURI){
         MemberDTO login = memberService.login(memberDTO);
         if(login!=null){
             session.setAttribute("user", memberDTO.getMemberEmail());
@@ -72,7 +87,7 @@ public class MemberController {
                 cookie.setPath("/");
                 response.addCookie(cookie);
             }
-            return new ResponseEntity<>(memberDTO, HttpStatus.OK);
+            return new ResponseEntity<>(redirectURI, HttpStatus.OK);
         }else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -104,6 +119,14 @@ public class MemberController {
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
+        return new ResponseEntity<>( HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity deleteById(@PathVariable("id") Long id
+    ){
+        memberService.delete(id);
         return new ResponseEntity<>( HttpStatus.OK);
     }
 }

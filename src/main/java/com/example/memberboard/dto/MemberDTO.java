@@ -26,6 +26,7 @@ public class MemberDTO {
     private List<String> originalFileName = new ArrayList<>();
     private List<String> storedFileName = new ArrayList<>();
 
+
     public static MemberDTO toDTO(MemberEntity memberEntity) {
         MemberDTO memberDTO = new MemberDTO();
         memberDTO.setId(memberEntity.getId());
@@ -42,6 +43,23 @@ public class MemberDTO {
             }
             memberDTO.setFileAttached(1);
         }else{
+            memberDTO.setFileAttached(0);
+        }
+        return memberDTO;
+    }
+
+    public static MemberDTO forAdmin(MemberEntity memberEntity) {
+        MemberDTO memberDTO = new MemberDTO();
+        memberDTO.setId(memberEntity.getId());
+        memberDTO.setMemberEmail(memberEntity.getMemberEmail());
+        memberDTO.setMemberPassword(memberEntity.getMemberPassword());
+        memberDTO.setMemberName(memberEntity.getMemberName());
+        memberDTO.setMemberMobile(memberEntity.getMemberMobile());
+        memberDTO.setMemberBirth(memberEntity.getMemberBirth());
+        memberDTO.setCreatedAt(UtilClass.dateTimeFormat(memberEntity.getCreatedAt()));
+        if (memberEntity.getFileAttached() == 1) {
+            memberDTO.setFileAttached(1);
+        } else {
             memberDTO.setFileAttached(0);
         }
         return memberDTO;
